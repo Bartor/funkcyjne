@@ -24,5 +24,6 @@ partitions xs = [(take i xs, take (length xs - i) n) | i <- [0..length xs]]
 
 -- 8
 nub :: (Eq a) => [a] -> [a]
-nub [] = []
+nub [] = [[]]
+nub [a] = [[a]]
 nub (x:xs) = [x] ++ [t | t <- nub xs, t /= x]
