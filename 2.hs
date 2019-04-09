@@ -29,7 +29,3 @@ nub [a] = [a]
 nub (x:xs) = [x] ++ [t | t <- nub xs, t /= x]
 
 -- 9
-permutations :: [a] -> [a]
-permutations [] = [[]]
-permutations [x] = [[x]]
-permutations (x:xs) = [[x] ++ permutations xs] ++ [permutations xs ++ [x]]
