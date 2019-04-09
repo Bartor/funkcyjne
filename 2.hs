@@ -24,6 +24,12 @@ partitions xs = [(take i xs, take (length xs - i) n) | i <- [0..length xs]]
 
 -- 8
 nub :: (Eq a) => [a] -> [a]
-nub [] = [[]]
-nub [a] = [[a]]
+nub [] = []
+nub [a] = [a]
 nub (x:xs) = [x] ++ [t | t <- nub xs, t /= x]
+
+-- 9
+permutations :: [a] -> [a]
+permutations [] = [[]]
+permutations [x] = [[x]]
+permutations (x:xs) = [[x] ++ permutations xs] ++ [permutations xs ++ [x]]
