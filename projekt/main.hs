@@ -7,7 +7,7 @@ import Data.Function
 import Data.Typeable
 
 -- uruchamiane jako "main.exe [liczba słów do wypisania] [plik ze stopami] [plik do analizy 1] [plik do analizy 2] ..."
--- przykładowo .\main.exe 10 .\stop.words .\words.words .\words2.words
+-- przykładowo ./main.exe 10 ./data/stop.words ./data/lotr.txt ./data/KJB.txt
 main = do
     args <- getArgs
     let number = read $ head $ args :: Int
