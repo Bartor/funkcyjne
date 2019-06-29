@@ -17,7 +17,7 @@ main = do
     mapM (\x -> x >>= print) stats
 
 clear :: [String] -> [String]
-clear s = filter (\x -> all (\y -> y `elem` ['a'..'z']++['A'..'Z']) x) s
+clear s = map (\x -> map toLower x) $ filter (\x -> all (\y -> y `elem` ['a'..'z']) x) s
 
 filterStop :: [String] -> [String] -> [String]
 filterStop w s = filter (\x -> not $ x `elem` w) s
