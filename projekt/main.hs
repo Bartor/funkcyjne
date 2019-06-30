@@ -14,6 +14,7 @@ main = do
     stops <- readFile (head.tail $ args)
     let contents = map readFile (tail.tail $ args)
     let stats = map (\x -> ((take number).frequency.(filterStop.words $ stops).clear.words <$> x)) contents
+    (jaccard <$> (stats !! 0) <*> (stats !! 1)) >>= print
     mapM (\x -> x >>= print) stats
 
 clear :: [String] -> [String]
@@ -25,3 +26,16 @@ filterStop w s = filter (\x -> not $ x `elem` w) s
 frequency :: [String] -> [(Int, String)]
 frequency s = sortBy (flip compare `on` fst) $ map (\x -> (length x, head x)) $ group.sort $ s
 
+jaccard :: [(Int, String)] -> [(Int, String)] -> Double
+jaccard stats1 stats2 = (fromIntegral (statSum (map (\x -> intersection (find (\y -> (snd y) == snd x) stats2) x) stats1)))/(fromIntegral (statSum (map (\x -> statUnion (find (\y -> (snd y) == snd x) stats2) x) stats1)))
+
+statSum :: [(Int, String)] -> Int
+statSum xs = foldl (\a (f, _) -> a + f) 0 xs
+
+intersection :: Maybe (Int, String) -> (Int, String) -> (Int, String)
+intersection Nothing (num1, token1) = (0, token1)
+intersection (Just (num1, token1)) (num2, token2) = if num1 > num2 then (num2, token1) else (num1, token2)
+
+statUnion :: Maybe (Int, String) -> (Int, String) -> (Int, String)
+statUnion Nothing x = x
+statUnion (Just (num1, token1)) (num2, token2) = (num1 + num2, token1)
