@@ -21,13 +21,13 @@ clear :: [String] -> [String]
 clear s = map (map toLower) $ filter (all (\ y -> y `elem` ['a' .. 'z'])) s
 
 filterStop :: [String] -> [String] -> [String]
-filterStop w = filter (\ x -> notElem x w)
+filterStop w = filter (`notElem` w)
 
 frequency :: [String] -> [(Int, String)]
 frequency s = sortBy (flip compare `on` fst) $ map (length Control.Arrow.&&& head) $ group.sort $ s
 
 jaccard :: [(Int, String)] -> [(Int, String)] -> Double
-jaccard stats1 stats2 = (fromIntegral(statSum(map(\ x -> intersection (find (\ y -> snd y == snd x) stats2) x) stats1)))/fromIntegral (statSum(map (\ x -> statUnion (find (\ y -> snd y == snd x) stats2) x) stats1))
+jaccard stats1 stats2 = fromIntegral(statSum(map(\ x -> intersection (find (\ y -> snd y == snd x) stats2) x) stats1))/fromIntegral (statSum(map (\ x -> statUnion (find (\ y -> snd y == snd x) stats2) x) stats1))
 
 statSum :: [(Int, String)] -> Int
 statSum = foldl (\ a (f, _) -> a + f) 0
