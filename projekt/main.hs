@@ -4,33 +4,33 @@ import System.Environment ( getArgs )
 import Data.Char
 import Data.List
 import Data.Function
-import Data.Typeable
+import Control.Arrow
 
 -- uruchamiane jako "main.exe [liczba słów do wypisania] [plik ze stopami] [plik do analizy 1] [plik do analizy 2] ..."
 -- przykładowo ./main.exe 10 ./data/stop.words ./data/lotr.txt ./data/KJB.txt
 main = do
     args <- getArgs
-    let number = read $ head $ args :: Int
+    let number = read $ head args :: Int
     stops <- readFile (head.tail $ args)
     let contents = map readFile (tail.tail $ args)
-    let stats = map (\x -> ((take number).frequency.(filterStop.words $ stops).clear.words <$> x)) contents
+    let stats = map (\ x -> take number . frequency . (filterStop . words $ stops) . clear . words <$> x) contents
     (jaccard <$> (stats !! 0) <*> (stats !! 1)) >>= print
-    mapM (\x -> x >>= print) stats
+    mapM (>>= print) stats
 
 clear :: [String] -> [String]
-clear s = map (\x -> map toLower x) $ filter (\x -> all (\y -> y `elem` ['a'..'z']) x) s
+clear s = map (map toLower) $ filter (all (\ y -> y `elem` ['a' .. 'z'])) s
 
 filterStop :: [String] -> [String] -> [String]
-filterStop w s = filter (\x -> not $ x `elem` w) s
+filterStop w = filter (\ x -> notElem x w)
 
 frequency :: [String] -> [(Int, String)]
-frequency s = sortBy (flip compare `on` fst) $ map (\x -> (length x, head x)) $ group.sort $ s
+frequency s = sortBy (flip compare `on` fst) $ map (length Control.Arrow.&&& head) $ group.sort $ s
 
 jaccard :: [(Int, String)] -> [(Int, String)] -> Double
-jaccard stats1 stats2 = (fromIntegral (statSum (map (\x -> intersection (find (\y -> (snd y) == snd x) stats2) x) stats1)))/(fromIntegral (statSum (map (\x -> statUnion (find (\y -> (snd y) == snd x) stats2) x) stats1)))
+jaccard stats1 stats2 = (fromIntegral(statSum(map(\ x -> intersection (find (\ y -> snd y == snd x) stats2) x) stats1)))/fromIntegral (statSum(map (\ x -> statUnion (find (\ y -> snd y == snd x) stats2) x) stats1))
 
 statSum :: [(Int, String)] -> Int
-statSum xs = foldl (\a (f, _) -> a + f) 0 xs
+statSum = foldl (\ a (f, _) -> a + f) 0
 
 intersection :: Maybe (Int, String) -> (Int, String) -> (Int, String)
 intersection Nothing (num1, token1) = (0, token1)
