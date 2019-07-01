@@ -15,8 +15,10 @@ main = do
     stops <- readFile (head.tail $ args)
     let contents = map readFile (tail.tail $ args)
     let stats = map (\ x -> take number . frequency . (filterStop . words $ stops) . clear . words <$> x) contents
+    print $ tail.tail $ args
+    mapM (>>= print) (map (\x -> (length.words <$> x)) contents)
+    mapM (>>= print) stats
     mapM (>>= print) [jaccard <$> s1 <*> s2 | s1 <- stats, s2 <- stats]
-    -- mapM (>>= print) stats
 
 clear :: [String] -> [String]
 clear s = map (map toLower) $ filter (all (\ y -> y `elem` ['a' .. 'z'])) s
@@ -35,8 +37,8 @@ statSum = foldl (\ a (f, _) -> a + f) 0
 
 intersection :: Maybe (Int, String) -> (Int, String) -> (Int, String)
 intersection Nothing (num1, token1) = (0, token1)
-intersection (Just (num1, token1)) (num2, token2) = if num1 > num2 then (num2, token2) else (num1, token1)
+intersection (Just (num1, token1)) (num2, token2) = if num1 < num2 then (num1, token1) else (num2, token1)
 
 statUnion :: Maybe (Int, String) -> (Int, String) -> (Int, String)
-statUnion Nothing x = x
-statUnion (Just (num1, token1)) (num2, token2) = if num1 > num2 then (num1, token1) else (num2, token2)
+statUnion Nothing (num1, token1) = (num1, token1)
+statUnion (Just (num1, token1)) (num2, token2) = if num1 > num2 then (num1, token1) else (num2, token1)
