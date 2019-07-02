@@ -7,7 +7,11 @@ import Data.Function
 import Control.Arrow
 
 -- uruchamiane jako "main.exe [liczba słów do wypisania] [plik ze stopami] [plik do analizy 1] [plik do analizy 2] ..."
--- przykładowo .\main.exe 20 .\data\stop.words .\data\eg1.txt .\data\eg2.txt .\data\eg3.txt .\data\tobe.txt
+-- przykładowo .\main.exe 20 .\data\stop.words .\data\eg1.txt .\data\eg2.txt .\data\eg3.txt .\data\tobe.txt > wyniki
+-- z tablicy z listami słów można utworzyć word cloud np. tutaj: https://worditout.com/word-cloud/create
+-- wybierając opcję "Table", traktując wyprintowany kod kawałkiem prostego js'a, np. [/*tablica z wynikami*/].join('\n') 
+-- i wklejając go tam. Wynik tego możemy zobaczyć w pliku ./eg_wordcloud.png 
+
 data Stat = Stat { number :: Int 
                  , name :: String
                  }
