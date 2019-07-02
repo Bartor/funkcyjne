@@ -5,10 +5,22 @@ import Data.Char
 import Data.List
 import Data.Function
 import Control.Arrow
-import Data.Typeable
 
 -- uruchamiane jako "main.exe [liczba słów do wypisania] [plik ze stopami] [plik do analizy 1] [plik do analizy 2] ..."
--- przykładowo ./main.exe 10 ./data/stop.words ./data/lotr.txt ./data/KJB.txt
+-- przykładowo .\main.exe 20 .\data\stop.words .\data\eg1.txt .\data\eg2.txt .\data\eg3.txt .\data\tobe.txt
+data Stat = Stat { number :: Int 
+                 , name :: String
+                 }
+
+instance Show Stat where
+    show (Stat n m) = "\"" ++ (id m) ++ " " ++ (show n) ++ "\""
+
+instance Eq Stat where
+    x == y = (name x) == (name y)
+
+instance Ord Stat where
+    compare x y = compare (number x) (number y)
+
 main = do
     args <- getArgs
     let number = read $ head args :: Int
@@ -26,19 +38,16 @@ clear s = map (map toLower) $ filter (all (\ y -> y `elem` ['a' .. 'z'])) s
 filterStop :: [String] -> [String] -> [String]
 filterStop w = filter (`notElem` w)
 
-frequency :: [String] -> [(Int, String)]
-frequency s = sortBy (flip compare `on` fst) $ map (length Control.Arrow.&&& head) $ group.sort $ s
+frequency :: [String] -> [Stat]
+frequency s = map (\(x, y) -> Stat x y) $ sortBy (flip compare `on` fst) $ map (length Control.Arrow.&&& head) $ group.sort $ s
 
-jaccard :: [(Int, String)] -> [(Int, String)] -> Double
-jaccard stats1 stats2 = fromIntegral (statSum(map(\ x -> intersection (find (\ y -> snd y == snd x) stats2) x) stats1))/fromIntegral (statSum(map (\ x -> statUnion (find (\ y -> snd y == snd x) stats2) x) stats1))
+jaccard :: [Stat] -> [Stat] -> Double
+jaccard stats1 stats2 = fromIntegral (sum (map(\ x -> intersection (find (== x) stats2) x) stats1))/fromIntegral (sum (map (\ x -> statUnion (find (== x) stats2) x) stats1))
 
-statSum :: [(Int, String)] -> Int
-statSum = foldl (\ a (f, _) -> a + f) 0
+intersection :: Maybe Stat -> Stat -> Int
+intersection Nothing x = 0
+intersection (Just x) y = if x < y then number x else number y
 
-intersection :: Maybe (Int, String) -> (Int, String) -> (Int, String)
-intersection Nothing (num1, token1) = (0, token1)
-intersection (Just (num1, token1)) (num2, token2) = if num1 < num2 then (num1, token1) else (num2, token1)
-
-statUnion :: Maybe (Int, String) -> (Int, String) -> (Int, String)
-statUnion Nothing (num1, token1) = (num1, token1)
-statUnion (Just (num1, token1)) (num2, token2) = if num1 > num2 then (num1, token1) else (num2, token1)
+statUnion :: Maybe Stat -> Stat -> Int
+statUnion Nothing x = number x
+statUnion (Just x) y = if x > y then number x else number y
